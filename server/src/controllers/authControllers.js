@@ -19,7 +19,7 @@ const user = await User.create({
 });
 
 return res.status(201).json({
-    message: "user registered succesfully",
+    message: "user registered successfully",
     user: {
         id:user._id,
         name: user.name,
