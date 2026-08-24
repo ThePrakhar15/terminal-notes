@@ -1,6 +1,6 @@
-import moongoose from "mongoose";
+import mongoose from "mongoose";
 
-const noteSchema = new moongoose.Schema({
+const noteSchema = new mongoose.Schema({
     title:{
         type:String,
         required:true,
@@ -11,7 +11,7 @@ const noteSchema = new moongoose.Schema({
         required:true,
     },
     user:{
-        type: mongoose.Schema.Type.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref:"User",
         required: true,
     },
@@ -21,5 +21,5 @@ timestamps:true,
     }
     );
 
-    const Note = moongoose.model("Note",noteSchema);
+    const Note = mongoose.model("Note",noteSchema);
     export default Note;
