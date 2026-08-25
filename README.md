@@ -26,3 +26,23 @@ A terminal-inspired note-taking application built using the MERN stack.
 - Express
 - MongoDB
 - JWT Authentication
+
+## Current Status (v1.0)
+### Backend 
+
+- User Registration
+- User Login 
+- JWT Authenticaion
+- Protected Routes
+- Create Note
+- Get notes
+- update notes
+- Delete notes
+
+### Frontend 
+- In Progress
+
+### Upcoming 
+- Connect React frontend
+- Dashboard UI
+- Authentication pages

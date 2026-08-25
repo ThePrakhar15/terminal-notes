@@ -138,3 +138,8 @@ Login
 JWT Token
 ↓
 Protected API Requests
+
+## Version 1 Architecture 
+
+- Backend Complete 
+
