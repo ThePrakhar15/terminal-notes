@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 function Login() {
@@ -6,6 +7,7 @@ function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const navigation = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -26,16 +28,20 @@ function Login() {
             return;
         }
         setError("");
-        
+
 
         try {
             const response = await api.post("/auth/login", {
                 email,
                 password
             });
-console.log(response.data.message);
+            console.log(response.data.message);
+            localStorage.setItem("token", response.data.token);
+
+
+            navigation("/dashboard")
         } catch (error) {
-            setError(error.response.data.message)
+            setError(error.response.data.message || "Something went wrong");
         }
     }
     return (
