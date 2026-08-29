@@ -7,7 +7,7 @@ function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const navigation = useNavigate();
+    const navigate= useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -39,9 +39,9 @@ function Login() {
             localStorage.setItem("token", response.data.token);
 
 
-            navigation("/dashboard")
+            navigate("/dashboard")
         } catch (error) {
-            setError(error.response.data.message || "Something went wrong");
+            setError(error.response?.data?.message || "Something went wrong");
         }
     }
     return (
