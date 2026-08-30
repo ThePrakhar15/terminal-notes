@@ -2,15 +2,27 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "../services/api.js";
 function Dashboard() {
+
   const [notes, setNotes] = useState([]);
+
   const [error, setError] = useState("")
+
   const [title, setTitle] = useState("");
+
   const [content, setContent] = useState("");
+
   const navigate = useNavigate();
+
+  const [editingNoteId, setEditingNoteId] = useState(null);
+
+  //  handleLogout
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/")
   };
+
+  // fetchNotes
   const fetchNotes = async () => {
     try {
       const response = await api.get("/notes")
@@ -22,6 +34,8 @@ function Dashboard() {
   useEffect(() => {
     fetchNotes();
   }, []);
+
+
   const handleAddNote = async () => {
     if (title.trim() === "") {
       setError("Title is empty");
@@ -61,6 +75,14 @@ function Dashboard() {
         <div key={note._id}>
           <h3>{note.title}</h3>
           <p>{note.content}</p>
+          {/* <button onClick={() => setEditingNoteId(note._id)}>
+            Edit
+          </button> */}
+                    <button onClick={() => {setEditingNoteId(note._id);
+                      console.log(note._id);
+                    }}>
+            Edit
+          </button>
         </div>
       ))}
       <button onClick={handleLogout}>Logout</button>
