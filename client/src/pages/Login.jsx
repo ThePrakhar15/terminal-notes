@@ -28,8 +28,6 @@ function Login() {
             return;
         }
         setError("");
-
-
         try {
             const response = await api.post("/auth/login", {
                 email,
