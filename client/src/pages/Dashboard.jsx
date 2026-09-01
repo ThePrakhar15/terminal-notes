@@ -73,16 +73,26 @@ function Dashboard() {
       {/* display notes  */}
       {notes.map((note) => (
         <div key={note._id}>
-          <h3>{note.title}</h3>
-          <p>{note.content}</p>
+          {/* <h3>{note.title}</h3>
+          <p>{note.content}</p> */}
           {/* <button onClick={() => setEditingNoteId(note._id)}>
             Edit
           </button> */}
-                    <button onClick={() => {setEditingNoteId(note._id);
-                      console.log(note._id);
-                    }}>
+          {/* <button onClick={() => {
+            setEditingNoteId(note._id);
+            console.log(note._id);
+          }}>
             Edit
-          </button>
+          </button> */}
+
+          {editingNoteId === note._id ? (
+            <p>Editing...</p>
+          ) : (
+            <div>
+              <h3>{note.title}</h3>
+              <p>{note.content}</p>
+            </div>
+          )}
         </div>
       ))}
       <button onClick={handleLogout}>Logout</button>
