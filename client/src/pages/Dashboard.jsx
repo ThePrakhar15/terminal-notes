@@ -16,12 +16,10 @@ function Dashboard() {
   const [editingNoteId, setEditingNoteId] = useState(null);
 
   //  handleLogout
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/")
   };
-
   // fetchNotes
   const fetchNotes = async () => {
     try {
@@ -34,8 +32,6 @@ function Dashboard() {
   useEffect(() => {
     fetchNotes();
   }, []);
-
-
   const handleAddNote = async () => {
     if (title.trim() === "") {
       setError("Title is empty");
@@ -70,28 +66,53 @@ function Dashboard() {
         setContent(e.target.value)
       }} />
       <button onClick={handleAddNote}>Add Note</button>
-      {/* display notes  */}
+      {/* display notes  */}{/* display notes */}
       {notes.map((note) => (
         <div key={note._id}>
-          {/* <h3>{note.title}</h3>
-          <p>{note.content}</p> */}
-          {/* <button onClick={() => setEditingNoteId(note._id)}>
-            Edit
-          </button> */}
-          {/* <button onClick={() => {
-            setEditingNoteId(note._id);
-            console.log(note._id);
-          }}>
-            Edit
-          </button> */}
-
           {editingNoteId === note._id ? (
-            <p>Editing...</p>
+            <>
+  <input
+    value={title}
+    onChange={(e) => {
+      setTitle(e.target.value);
+    }}
+  />
+
+  <textarea
+    value={content}
+    onChange={(e) => {
+      setContent(e.target.value);
+    }}
+  />
+
+  <button>
+    Save
+  </button>
+
+  <button
+    onClick={() => {
+      setEditingNoteId(null);
+      setTitle("");
+      setContent("");
+    }}
+  >
+    Cancel
+  </button>
+</>
           ) : (
-            <div>
+            <>
               <h3>{note.title}</h3>
               <p>{note.content}</p>
-            </div>
+              <button
+                onClick={() => {
+                  setEditingNoteId(note._id);
+                  setTitle(note.title);
+                  setContent(note.content);
+                }}
+              >
+                Edit
+              </button>
+            </>
           )}
         </div>
       ))}
