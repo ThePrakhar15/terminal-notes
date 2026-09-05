@@ -20,6 +20,7 @@ function Dashboard() {
     localStorage.removeItem("token");
     navigate("/")
   };
+
   // fetchNotes
   const fetchNotes = async () => {
     try {
@@ -32,6 +33,7 @@ function Dashboard() {
   useEffect(() => {
     fetchNotes();
   }, []);
+
   const handleAddNote = async () => {
     if (title.trim() === "") {
       setError("Title is empty");
@@ -55,6 +57,30 @@ function Dashboard() {
       setError(error.response?.data?.message || "Something went wrong");
     }
   }
+  const handleUpdateNote = async () => {
+
+    if (title.trim() === "") {
+      setError("Title is empty");
+      return;
+    }
+    if (content.trim() === "") {
+      setError("Content is empty");
+      return;
+    }
+    setError("");
+    try {
+      await api.put(`/notes/${editingNoteId}`, {
+        title,
+        content
+      });
+      fetchNotes();
+      setEditingNoteId(null);
+      setTitle("");
+      setContent("");
+    } catch (error) {
+      setError(error.response?.data?.message || "Something went wrong");
+    }
+  }
   return (
     <div>
       <h1>Dashboard</h1>
@@ -66,39 +92,39 @@ function Dashboard() {
         setContent(e.target.value)
       }} />
       <button onClick={handleAddNote}>Add Note</button>
-      {/* display notes  */}{/* display notes */}
+      {/* display notes  */}
       {notes.map((note) => (
         <div key={note._id}>
           {editingNoteId === note._id ? (
             <>
-  <input
-    value={title}
-    onChange={(e) => {
-      setTitle(e.target.value);
-    }}
-  />
+              <input
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                }}
+              />
 
-  <textarea
-    value={content}
-    onChange={(e) => {
-      setContent(e.target.value);
-    }}
-  />
+              <textarea
+                value={content}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                }}
+              />
 
-  <button>
-    Save
-  </button>
+              <button onClick={handleUpdateNote}>
+                Save
+              </button>
 
-  <button
-    onClick={() => {
-      setEditingNoteId(null);
-      setTitle("");
-      setContent("");
-    }}
-  >
-    Cancel
-  </button>
-</>
+              <button
+                onClick={() => {
+                  setEditingNoteId(null);
+                  setTitle("");
+                  setContent("");
+                }}
+              >
+                Cancel
+              </button>
+            </>
           ) : (
             <>
               <h3>{note.title}</h3>
