@@ -87,6 +87,16 @@ function Dashboard() {
       setError(error.response?.data?.message || "Something went wrong");
     }
   }
+
+  const handleDeleteNote = async (noteID) => { 
+
+    try{
+      await api.delete(`/notes/${noteID}`);
+      fetchNotes();
+    }catch (error){
+ setError(error.response?.data?.message || "Something went wrong");
+    }
+  }
   return (
     <div>
       <h1>Dashboard</h1>
@@ -144,6 +154,8 @@ function Dashboard() {
               >
                 Edit
               </button>
+
+              <button onClick = {() => handleDeleteNote(note._id)}>delete</button>
             </>
           )}
         </div>
