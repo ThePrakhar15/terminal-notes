@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "../services/api.js";
+
 function Dashboard() {
 
   const [notes, setNotes] = useState([]);
@@ -10,6 +11,10 @@ function Dashboard() {
   const [title, setTitle] = useState("");
 
   const [content, setContent] = useState("");
+
+  const [editTitle, setEditTitle ] = useState("");
+
+  const [editContent, setEditContent] = useState("");
 
   const navigate = useNavigate();
 
@@ -25,7 +30,7 @@ function Dashboard() {
   const fetchNotes = async () => {
     try {
       const response = await api.get("/notes")
-      setNotes(response.data);
+      setNotes(response.data.notes);
     } catch (error) {
       setError(error.response?.data?.message || "Something went wrong");
     }
@@ -57,26 +62,27 @@ function Dashboard() {
       setError(error.response?.data?.message || "Something went wrong");
     }
   }
+  
   const handleUpdateNote = async () => {
 
-    if (title.trim() === "") {
+    if (editTitle.trim() === "") {
       setError("Title is empty");
       return;
     }
-    if (content.trim() === "") {
+    if (editContent.trim() === "") {
       setError("Content is empty");
       return;
     }
     setError("");
     try {
       await api.put(`/notes/${editingNoteId}`, {
-        title,
-        content
+        title: editTitle,
+        content: editContent
       });
       fetchNotes();
       setEditingNoteId(null);
-      setTitle("");
-      setContent("");
+      setEditTitle("");
+      setEditContent("");
     } catch (error) {
       setError(error.response?.data?.message || "Something went wrong");
     }
@@ -98,16 +104,16 @@ function Dashboard() {
           {editingNoteId === note._id ? (
             <>
               <input
-                value={title}
+                value={editTitle}
                 onChange={(e) => {
-                  setTitle(e.target.value);
+                  setEditTitle(e.target.value);
                 }}
               />
 
               <textarea
-                value={content}
+                value={editContent}
                 onChange={(e) => {
-                  setContent(e.target.value);
+                  setEditContent(e.target.value);
                 }}
               />
 
@@ -118,8 +124,8 @@ function Dashboard() {
               <button
                 onClick={() => {
                   setEditingNoteId(null);
-                  setTitle("");
-                  setContent("");
+                  setEditTitle("");
+                  setEditContent("");
                 }}
               >
                 Cancel
@@ -132,8 +138,8 @@ function Dashboard() {
               <button
                 onClick={() => {
                   setEditingNoteId(note._id);
-                  setTitle(note.title);
-                  setContent(note.content);
+                  setEditTitle(note.title);
+                  setEditContent(note.content);
                 }}
               >
                 Edit
