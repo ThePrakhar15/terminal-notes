@@ -14,6 +14,11 @@ const note = await Note.create({
     });
 
     }catch(error){
+        if(error.name === "ValidationError"){
+            return res.status(400).json({
+                message: error.message,
+            });
+        }
         return res.status(500).json({
             message: "Internal Server error",
         });
@@ -66,6 +71,12 @@ const updateNote = async (req , res) =>{
         });
 
     } catch(error){
+
+        if(error.name === "ValidationError"){
+            return res.status(400).json({
+                message: error.message,
+            });
+        }
         return res.status(500).json({
             message:"Internal Server Error",
         });

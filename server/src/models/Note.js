@@ -5,10 +5,13 @@ const noteSchema = new mongoose.Schema({
         type:String,
         required:true,
         trim:true,
+        minLength: 1,
+       
     },
     content:{
         type:String,
         required:true,
+        minLength:1 ,
     },
     user:{
         type: mongoose.Schema.Types.ObjectId,
