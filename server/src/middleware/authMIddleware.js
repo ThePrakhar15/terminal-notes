@@ -27,7 +27,7 @@ req.user = user;
 next();
     }catch(error){
 return res.status(401).json({
-    message: "Internal Server Error",
+    message: "Unauthorized",
 });
     }
 }

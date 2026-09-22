@@ -7,6 +7,7 @@ const note = await Note.create({
     title,
     content,
     user: req.user._id,
+    lastModifiedBy: "web",
 });
     return res.status(201).json({
         message: "Note created succesfully",
@@ -63,6 +64,7 @@ const updateNote = async (req , res) =>{
 
         note.title = title;
         note.content = content;
+        note.lastModifiedBy = "web";
         note.version += 1;
 
         await note.save();

@@ -26,6 +26,10 @@ const noteSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    lastModifiedBy:{
+        type: String,
+        default: "server",
+    }
 },
 {
 timestamps:true,
