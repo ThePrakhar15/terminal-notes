@@ -29,6 +29,7 @@ const getNotes = async (req , res) =>{
     try{
 const notes = await Note.find({
     user: req.user._id,
+    isDeleted: false,
 }) 
     return res.status(200).json({
         notes,
@@ -102,7 +103,11 @@ const deleteNote = async (req , res) =>{
         })
     }
     
-    await note.deleteOne();
+    // await note.deleteOne();
+    note.isDeleted = true;
+    note.version += 1;
+
+    await note.save();
 
     return res.status(200).json({
         message: "Note deleted successfully",
