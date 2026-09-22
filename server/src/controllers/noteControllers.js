@@ -62,6 +62,7 @@ const updateNote = async (req , res) =>{
 
         note.title = title;
         note.content = content;
+        note.version += 1;
 
         await note.save();
 
