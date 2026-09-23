@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import db from "../db/database";
 import api from "../services/api.js";
 
 function Dashboard() {
@@ -26,18 +27,37 @@ function Dashboard() {
     navigate("/")
   };
 
+  const saveNotesLocally = async (notes) =>{
+    await db.notes.bulkPut(
+      notes.map((note) => ({
+        id: note._id,
+        user: note.user,
+        title: note.title,
+        content: note.content,
+        version: note.version,
+        isDeleted: note.isDeleted,
+        lastModifiedBy: note.lastModifiedBy,
+        updatedAt: note.updatedAt,
+        syncStatus: "synced",
+      }))
+    );
+  };
   // fetchNotes
   const fetchNotes = async () => {
     try {
       const response = await api.get("/notes")
+      await saveNotesLocally(response.data.notes);
       setNotes(response.data.notes);
     } catch (error) {
-      setError(error.response?.data?.message || "Something went wrong");
+      const localNotes = await db.notes.where("syncStatus").anyOf("synced", "pending").toArray();
+
+      setNotes(localNotes);
     }
-  }
+  };
   useEffect(() => {
     fetchNotes();
   }, []);
+  
 
   const handleAddNote = async () => {
     if (title.trim() === "") {
