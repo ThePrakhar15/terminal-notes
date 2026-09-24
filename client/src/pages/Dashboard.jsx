@@ -31,6 +31,7 @@ function Dashboard() {
     await db.notes.bulkPut(
       notes.map((note) => ({
         id: note._id,
+        _id: note._id,
         user: note.user,
         title: note.title,
         content: note.content,
@@ -51,6 +52,10 @@ function Dashboard() {
     } catch (error) {
       const localNotes = await db.notes.where("syncStatus").anyOf("synced", "pending").toArray();
 
+      console.log("Server unavailable");
+      console.log("Local notes: ", localNotes);
+
+      setError("");
       setNotes(localNotes);
     }
   };
