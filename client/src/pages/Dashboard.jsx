@@ -45,18 +45,32 @@ function Dashboard() {
   };
   // fetchNotes
   const fetchNotes = async () => {
-    try {
-      const response = await api.get("/notes")
-      await saveNotesLocally(response.data.notes);
-      setNotes(response.data.notes);
-    } catch (error) {
+    // try {
+    //   const response = await api.get("/notes")
+    //   await saveNotesLocally(response.data.notes);
+    //   setNotes(response.data.notes);
+    // } catch (error) {
+    //   const localNotes = await db.notes.where("syncStatus").anyOf("synced", "pending").toArray();
+
+    //   console.log("Server unavailable");
+    //   console.log("Local notes: ", localNotes);
+
+    //   setError("");
+    //   setNotes(localNotes);
+    // }
+
+    try{
       const localNotes = await db.notes.where("syncStatus").anyOf("synced", "pending").toArray();
 
-      console.log("Server unavailable");
-      console.log("Local notes: ", localNotes);
-
-      setError("");
       setNotes(localNotes);
+
+      const response = await api.get("/notes");
+
+      await saveNotesLocally(response.data.notes);
+
+      setNotes(response.data.notes);
+    }catch(error){
+      console.log("Server unavailable, using local notes");
     }
   };
   useEffect(() => {
