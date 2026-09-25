@@ -89,16 +89,39 @@ function Dashboard() {
     }
     setError("");
     try {
-      const response = await api.post("/notes", {
+      const localId = crypto.randomUUID();
+
+      const localNote = {
+        id: localId,
+        _id: localId,
+        user: "current-user",
         title,
-        content
-      })
-      console.log(response.data.message);
+        content,
+        version: 1,
+        isDeleted: false,
+        updatedAt: new Date().toISOString(),
+        syncStatus:"pending",
+      };
+
+      await db.notes.put(localNote);
+
+      await db.syncQueue.add({
+        noteId: localId,
+        operation: "create",
+        createdAt: new Date().toISOString(),
+      });
+      // const response = await api.post("/notes", {
+      //   title,
+      //   content
+      // })
+      // console.log(response.data.message);
       setTitle("");
       setContent("");
       fetchNotes();
     } catch (error) {
-      setError(error.response?.data?.message || "Something went wrong");
+      // setError(error.response?.data?.message || "Something went wrong");
+      console.error("OFFLINE CREATE ERROR:"  , error);
+      setError("offline create failed");
     }
   }
   
