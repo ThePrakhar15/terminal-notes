@@ -63,7 +63,7 @@ function Dashboard() {
     try{
       const localNotes = await db.notes.where("syncStatus").anyOf("synced", "pending").toArray();
 
-      setNotes(localNotes);
+      setNotes(localNotes.filter(note => !note.isDeleted));
 
       const response = await api.get("/notes");
 
@@ -172,12 +172,29 @@ function Dashboard() {
   }
 
   const handleDeleteNote = async (noteID) => { 
-
     try{
-      await api.delete(`/notes/${noteID}`);
+      const note = await db.notes.get(noteID);
+
+      if (!note){
+        setError("Note not found locally");
+        return;
+      }
+
+      note.isDeleted = true;
+      note.syncStatus = "Pending";
+
+      await db.notes.put(note);
+
+      await db.syncQueue.add({
+        noteId: noteID,
+        operation: "delete",
+        createdAt: new Date().toISOString(),
+      });
+
       fetchNotes();
     }catch (error){
- setError(error.response?.data?.message || "Something went wrong");
+      console.log("Offline delte failed:", error);
+      setError("Offline delete failed");
     }
   }
   return (
