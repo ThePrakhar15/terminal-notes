@@ -1,8 +1,8 @@
 import Dexie from "dexie";
 const db = new Dexie("TerminalNotesDB");
 
-db.version(1).stores({
-    notes: "id, user, updatedAt, syncStatus",
+db.version(2).stores({
+    notes: "id, user, serverId, updatedAt, syncStatus",
     syncQueue: "++id , noteId , operation , createdAt"
 });
 

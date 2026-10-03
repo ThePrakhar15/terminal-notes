@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import syncNotes from "../services/syncService.js";
 import db from "../db/database";
 import api from "../services/api.js";
 
@@ -31,6 +32,7 @@ function Dashboard() {
     await db.notes.bulkPut(
       notes.map((note) => ({
         id: note._id,
+        serverId: note._id,
         _id: note._id,
         user: note.user,
         title: note.title,
@@ -75,6 +77,7 @@ function Dashboard() {
   };
   useEffect(() => {
     fetchNotes();
+    syncNotes();
   }, []);
   
 
@@ -94,6 +97,7 @@ function Dashboard() {
       const localNote = {
         id: localId,
         _id: localId,
+        serverId: null,
         user: "current-user",
         title,
         content,
