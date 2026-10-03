@@ -1,31 +1,206 @@
+// // import db from "../db/database";
+// // import api from "./api.js";
+
+// // const syncNotes = async () => {
+// //     console.log("Starting sync..");
+// //     const queue = await db.syncQueue.toArray();
+
+// //     for (const item of queue) {
+// //         const note = await db.notes.get(item.noteId);
+// //         if (item.operation === "create") {
+// //             try {
+// //                 const response = await api.post("/notes", {
+// //                     title: note.title,
+// //                     content: note.content
+// //                 });
+
+// //                 note.serverId = response.data.note._id;
+// //                 note.syncStatus = "synced";
+// //                 await db.notes.put(note);
+
+// //                 await db.syncQueue.delete(item.id);
+
+// //                 console.log("Note synced:", response.data);
+// //             }
+// //             catch (error) {
+// //                 console.log("Sync failed:", error);
+// //             }
+// //         }
+// //         if (item.operation === "update") {
+// //             try {
+// //                const response = await api.put(`/notes/${note.serverId}`, {
+// //                     title: note.title,
+// //                     content: note.content
+// //                 });
+
+// //                 note.version = response.data.note.version;
+// //                 note.updatedAt = response.data.note.updatedAt;
+// //                 note.lastModifiedBy = response.data.note.lastModifiedBy;
+// //                 note.syncStatus = "synced";
+
+// //                 await db.notes.put(note);
+
+// //                 await db.syncQueue.delete(item.id);
+
+// //                 console.log("Note update synced", response.data);
+// //             } catch (error) {
+// //                 console.log("Update sync failed", error);
+// //             }
+// //         }
+// //     }
+// // };
+
+// // export default syncNotes;
+
+// import db from "../db/database";
+// import api from "./api.js";
+
+// let isSyncing = false;
+
+// const syncNotes = async () => {
+//     if (isSyncing) {
+//         console.log("Sync already running...");
+//         return;
+//     }
+
+//     isSyncing = true;
+
+//     try {
+//         console.log("Starting sync..");
+
+//         const queue = await db.syncQueue.toArray();
+
+//         for (const item of queue) {
+//             const note = await db.notes.get(item.noteId);
+
+//             if (!note) {
+//                 console.log("Local note not found:", item.noteId);
+//                 continue;
+//             }
+
+//             if (item.operation === "create") {
+//                 try {
+//                     const response = await api.post("/notes", {
+//                         title: note.title,
+//                         content: note.content
+//                     });
+
+//                     note.serverId = response.data.note._id;
+//                     note.syncStatus = "synced";
+
+//                     await db.notes.put(note);
+//                     await db.syncQueue.delete(item.id);
+
+//                     console.log("Note synced:", response.data);
+//                 } catch (error) {
+//                     console.log("Create sync failed:", error);
+//                 }
+//             }
+
+//             if (item.operation === "update") {
+//                 try {
+//                     const response = await api.put(
+//                         `/notes/${note.serverId}`,
+//                         {
+//                             title: note.title,
+//                             content: note.content
+//                         }
+//                     );
+
+//                     note.version = response.data.note.version;
+//                     note.updatedAt = response.data.note.updatedAt;
+//                     note.lastModifiedBy = response.data.note.lastModifiedBy;
+//                     note.syncStatus = "synced";
+
+//                     await db.notes.put(note);
+
+//                     await db.syncQueue.delete(item.id);
+
+//                     console.log("Note update synced:", response.data);
+//                 } catch (error) {
+//                     console.log("Update sync failed:", error);
+//                 }
+//             }
+//         }
+//     } finally {
+//         isSyncing = false;
+//     }
+// };
+
+// export default syncNotes;
+
 import db from "../db/database";
 import api from "./api.js";
 
+let isSyncing = false;
+
 const syncNotes = async () => {
-    console.log("Starting sync..");
-    const queue = await db.syncQueue.toArray();
+    if (isSyncing) {
+        console.log("Sync already running...");
+        return;
+    }
 
-    for (const item of queue) {
-        const note = await db.notes.get(item.noteId);
-        if (item.operation === "create") {
-            try {
-                const response = await api.post("/notes", {
-                    title: note.title,
-                    content: note.content
-                });
+    isSyncing = true;
 
-                note.serverId = response.data.note._id;
-                note.syncStatus = "synced";
-                await db.notes.put(note);
+    try {
+        console.log("Starting sync..");
 
-                await db.syncQueue.delete(item.id);
-                
-                console.log("Note synced:", response.data);
+        const queue = await db.syncQueue.toArray();
+
+        for (const item of queue) {
+            const note = await db.notes.get(item.noteId);
+
+            if (!note) {
+                console.log("Local note not found:", item.noteId);
+                continue;
             }
-            catch (error) {
-                console.log("Sync failed:", error);
+
+            if (item.operation === "create") {
+                try {
+                    const response = await api.post("/notes", {
+                        title: note.title,
+                        content: note.content
+                    });
+
+                    note.serverId = response.data.note._id;
+                    note.syncStatus = "synced";
+
+                    await db.notes.put(note);
+                    await db.syncQueue.delete(item.id);
+
+                    console.log("Note synced:", response.data);
+                } catch (error) {
+                    console.log("Create sync failed:", error);
+                }
+            }
+
+            if (item.operation === "update") {
+                try {
+                    const response = await api.put(
+                        `/notes/${note.serverId}`,
+                        {
+                            title: note.title,
+                            content: note.content
+                        }
+                    );
+
+                    note.version = response.data.note.version;
+                    note.updatedAt = response.data.note.updatedAt;
+                    note.lastModifiedBy = response.data.note.lastModifiedBy;
+                    note.syncStatus = "synced";
+
+                    await db.notes.put(note);
+
+                    await db.syncQueue.delete(item.id);
+
+                    console.log("Note update synced:", response.data);
+                } catch (error) {
+                    console.log("Update sync failed:", error);
+                }
             }
         }
+    } finally {
+        isSyncing = false;
     }
 };
 

@@ -27,7 +27,6 @@ function Dashboard() {
     localStorage.removeItem("token");
     navigate("/")
   };
-
   const saveNotesLocally = async (notes) =>{
     await db.notes.bulkPut(
       notes.map((note) => ({
@@ -79,8 +78,6 @@ function Dashboard() {
     fetchNotes();
     syncNotes();
   }, []);
-  
-
   const handleAddNote = async () => {
     if (title.trim() === "") {
       setError("Title is empty");
@@ -127,8 +124,7 @@ function Dashboard() {
       console.error("OFFLINE CREATE ERROR:"  , error);
       setError("offline create failed");
     }
-  }
-  
+  } 
   const handleUpdateNote = async () => {
 
     if (editTitle.trim() === "") {
@@ -141,10 +137,31 @@ function Dashboard() {
     }
     setError("");
     try {
-      await api.put(`/notes/${editingNoteId}`, {
-        title: editTitle,
-        content: editContent
+      // await api.put(`/notes/${editingNoteId}`, {
+      //   title: editTitle,
+      //   content: editContent
+      // });
+
+      const note = await db.notes.get(editingNoteId);
+
+      if(!note){
+        setError("Note not found locally");
+        return;
+      }
+      
+      note.title = editTitle;
+      note.content = editContent;
+      note.version += 1;
+      note.syncStatus = "pending"
+
+      await db.notes.put(note);
+
+      await db.syncQueue.add({
+        noteId: editingNoteId,
+        operation: "update",
+        createdAt: new Date().toISOString(),
       });
+
       fetchNotes();
       setEditingNoteId(null);
       setEditTitle("");
