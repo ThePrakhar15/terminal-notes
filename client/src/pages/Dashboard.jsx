@@ -28,38 +28,43 @@ function Dashboard() {
     navigate("/")
   };
   const saveNotesLocally = async (notes) =>{
-    await db.notes.bulkPut(
-      notes.map((note) => ({
-        id: note._id,
-        serverId: note._id,
-        _id: note._id,
-        user: note.user,
-        title: note.title,
-        content: note.content,
-        version: note.version,
-        isDeleted: note.isDeleted,
-        lastModifiedBy: note.lastModifiedBy,
-        updatedAt: note.updatedAt,
-        syncStatus: "synced",
-      }))
-    );
+
+    for( const serverNote of notes){
+      const localNote = await db.notes.get(serverNote._id);
+
+      if(localNote?.syncStatus === "pending"){
+        continue;
+      }
+    await db.notes.put(
+      // notes.map((note) => ({
+      //   id: note._id,
+      //   serverId: note._id,
+      //   _id: note._id,
+      //   user: note.user,
+      //   title: note.title,
+      //   content: note.content,
+      //   version: note.version,
+      //   isDeleted: note.isDeleted,
+      //   lastModifiedBy: note.lastModifiedBy,
+      //   updatedAt: note.updatedAt,
+      //   syncStatus: "synced",
+      // }))
+     { id: serverNote._id ,
+      serverId: serverNote._id ,
+      _id: serverNote._id ,
+      user: serverNote.user ,
+      title: serverNote.title ,
+      content: serverNote.content ,
+      version: serverNote.version ,
+      isDeleted: serverNote.isDeleted,
+      lastModifiedBy: serverNote.lastModifiedBy ,
+      updatedAt: serverNote.updatedAt ,
+      syncStatus: "synced",
+    });
+  }
   };
   // fetchNotes
   const fetchNotes = async () => {
-    // try {
-    //   const response = await api.get("/notes")
-    //   await saveNotesLocally(response.data.notes);
-    //   setNotes(response.data.notes);
-    // } catch (error) {
-    //   const localNotes = await db.notes.where("syncStatus").anyOf("synced", "pending").toArray();
-
-    //   console.log("Server unavailable");
-    //   console.log("Local notes: ", localNotes);
-
-    //   setError("");
-    //   setNotes(localNotes);
-    // }
-
     try{
       const localNotes = await db.notes.where("syncStatus").anyOf("synced", "pending").toArray();
 
@@ -69,7 +74,10 @@ function Dashboard() {
 
       await saveNotesLocally(response.data.notes);
 
-      setNotes(response.data.notes);
+      const updatedLocalNotes = await db.notes.where("syncStatus").anyOf("synced", "pending").toArray();
+
+      setNotes(updatedLocalNotes.filter(note => !note.isDeleted));
+
     }catch(error){
       console.log("Server unavailable, using local notes");
     }
@@ -90,7 +98,6 @@ function Dashboard() {
     setError("");
     try {
       const localId = crypto.randomUUID();
-
       const localNote = {
         id: localId,
         _id: localId,
@@ -120,7 +127,6 @@ function Dashboard() {
       setContent("");
       fetchNotes();
     } catch (error) {
-      // setError(error.response?.data?.message || "Something went wrong");
       console.error("OFFLINE CREATE ERROR:"  , error);
       setError("offline create failed");
     }
@@ -181,7 +187,7 @@ function Dashboard() {
       }
 
       note.isDeleted = true;
-      note.syncStatus = "Pending";
+      note.syncStatus = "pending";
 
       await db.notes.put(note);
 
